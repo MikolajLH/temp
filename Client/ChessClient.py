@@ -105,6 +105,7 @@ class ChessApp:
                         if(msg.startswith(protocol.FEN_PREFIX)):
                             fen = msg[len(protocol.FEN_PREFIX):]
                             self.__current_gameboard = chess.Board(fen)
+                            print(msg)
                             print(f"[Info]: This game ID: {self.__active_game_id}")
                         else:
                             print(msg)
@@ -121,6 +122,9 @@ class ChessApp:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     x, y = pygame.mouse.get_pos()
                     self.__on_lmb_down(x,y)
+
+                if event.type == pygame.KEYDOWN:
+                    self.__current_perspective = not self.__current_perspective
 
             if self.__selected_square is not None:
                 self.__highlight_legal_moves(*self.__selected_square)
@@ -226,6 +230,9 @@ class ChessApp:
                                 self.__disconnect_from_server()
                             else:
                                 self.__current_gameboard.push_uci(move)
+                else:
+                    self.__current_gameboard.push_uci(move)
+
 
                 self.__selected_square = None
                 #self.__current_color = not self.__current_color
@@ -234,7 +241,7 @@ class ChessApp:
 
             else:
                 self.__selected_square = None
-        elif new_piece is not None and new_piece.color == WHITE: #self.__current_color:
+        elif new_piece is not None and (new_piece.color == self.__current_color or not self.__is_connected()):
             self.__selected_square = (new_f, new_r)
 
     # Console part
@@ -336,7 +343,7 @@ class ChessApp:
                 if (args := utility.silent_convert((game_id, int))) is not None and not failure:
                     color = "b" if color.lower() != "w" else "w"
                     self.__active_game_id, *_ = args
-                    self.__current_color = (color == "b")
+                    self.__current_color = (color == "w")
                     print(f"joined game with id {self.__active_game_id}")
             
             case ["vote", game_id, move]:

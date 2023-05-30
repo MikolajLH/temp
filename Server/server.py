@@ -53,7 +53,7 @@ class Server:
         #self.__games_manager.load()
 
         start_time = time.time_ns()
-        wait_time = 1000_000_000
+        wait_time = 10
 
         while self.__running:
             current_time = time.time_ns()
@@ -259,7 +259,7 @@ class Server:
                 if (args := utility.silent_convert((game_id, int))) is not None:
                     self.__send_byte_to_client(id, protocol.CONFIRMATION_BYTE)
                     game_fen = self.__games_manager.get_game(*args).get_fen()
-                    #print("sending", game_fen)
+                    print("[Info]: sending", game_fen)
                     self.__send_msg_to_client(id, protocol.FEN_PREFIX + game_fen)
 
             case [protocol.CLIENT_DSC_MSG]:
